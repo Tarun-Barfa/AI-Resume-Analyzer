@@ -39,7 +39,7 @@ async function registerUserController(req, res) {
     const token = jwt.sign(
         { id: user._id, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "1d" }
     )
 
     res.cookie("token", token)
@@ -85,7 +85,7 @@ async function loginUserController(req, res) {
     const token = jwt.sign(
         { id: user._id, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "1d" }
     )
 
     res.cookie("token", token)
@@ -98,8 +98,6 @@ async function loginUserController(req, res) {
         }
     })
 }
-
-
 
 
 /**
@@ -120,7 +118,6 @@ async function logoutUserController(req, res) {
         message: "User logged out successfully"
     })
 }
-
 
 /**
  * @name getMeController
@@ -144,4 +141,9 @@ async function getMeController(req, res) {
 
 }
 
-module.exports = {registerUserController, loginUserController , logoutUserController,getMeController}
+module.exports = {
+    registerUserController,
+    loginUserController,
+    logoutUserController,
+    getMeController
+}

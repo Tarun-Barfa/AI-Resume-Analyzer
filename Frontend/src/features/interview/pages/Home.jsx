@@ -18,6 +18,38 @@ const Home = () => {
         navigate(`/interview/${data._id}`)
     }
 
+
+  // Top of your component
+const [file, setFile] = useState(null);
+
+
+// Handle file upload
+const handleFileChange = (e) => {
+  const selectedFile = e.target.files[0];
+  
+  if (selectedFile) {
+    // Validate file type
+    if (!selectedFile.type === 'application/pdf' && 
+        !selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      alert('Please upload PDF or DOCX file');
+      return;
+    }
+    
+    // Validate file size (5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert('File size should be less than 5MB');
+      return;
+    }
+    
+    setFile(selectedFile);
+  }
+};
+
+
+
+
+
+
     if (loading) {
         return (
             <main className='loading-screen'>
@@ -70,7 +102,7 @@ const Home = () => {
                         </div>
 
                         {/* Upload Resume */}
-                        <div className='upload-section'>
+                        {/* <div className='upload-section'>
                             <label className='section-label'>
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
@@ -83,7 +115,56 @@ const Home = () => {
                                 <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
                                 <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
                             </label>
-                        </div>
+                        </div> */}
+
+<div className='upload-section'>
+  <label className='section-label'>
+    Upload Resume
+    <span className='badge badge--best'>Best Results</span>
+  </label>
+  
+  <label className={`dropzone ${file ? 'dropzone--uploaded' : ''}`} htmlFor='resume'>
+    {/* ← Upload Icon (when no file) */}
+    {!file && (
+      <span className='dropzone__icon'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="16 16 12 12 8 16" />
+          <line x1="12" y1="12" x2="12" y2="21" />
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+        </svg>
+      </span>
+    )}
+
+    {/* ← Success Icon + File Name (when file uploaded) */}
+    {file && (
+      <div className='dropzone__uploaded'>
+        <span className='dropzone__success-icon'>
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4285f4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </span>
+        <span className='dropzone__file-name'>{file.name}</span>
+        <span className='dropzone__file-size'>{(file.size / 1024).toFixed(1)} KB</span>
+      </div>
+    )}
+
+    {/* ← Original Text (hidden when file uploaded) */}
+    {!file && (
+      <>
+        <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
+        <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
+      </>
+    )}
+
+    <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' onChange={handleFileChange} />
+  </label>
+</div>
+
+
+
+
+
 
                         {/* OR Divider */}
                         <div className='or-divider'><span>OR</span></div>

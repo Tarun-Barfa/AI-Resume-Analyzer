@@ -1,9 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
-
-
-
-const connectToDB = async () => {
+async function connectToDB() {
 
     try {
         await mongoose.connect(process.env.MONGO_URI)

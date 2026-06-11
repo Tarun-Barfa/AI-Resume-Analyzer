@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, Link ,  useParams } from 'react-router'
 
 
 
@@ -15,7 +15,10 @@ const NAV_ITEMS = [
 const QuestionCard = ({ item, index }) => {
     const [ open, setOpen ] = useState(false)
     return (
+
         <div className='q-card'>
+
+
             <div className='q-card__header' onClick={() => setOpen(o => !o)}>
                 <span className='q-card__index'>Q{index + 1}</span>
                 <p className='q-card__question'>{item.question}</p>
@@ -85,6 +88,22 @@ const Interview = () => {
 
     return (
         <div className='interview-page'>
+    <div>
+        <Link 
+        to="/"
+        style={{
+          display: 'inline-block',
+          marginBottom: '20px',
+          padding: '10px 20px',
+          backgroundColor: '#4285f4',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '6px'
+        }}
+      >
+        ← Back to Home
+      </Link>
+</div>
             <div className='interview-layout'>
 
                 {/* ── Left Nav ── */}

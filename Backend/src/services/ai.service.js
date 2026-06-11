@@ -32,29 +32,100 @@ const interviewReportSchema = z.object({
     title: z.string().describe("The title of the job for which the interview report is generated"),
 })
 
+// T:\GenAI\Backend\src\services\ai.service.js
+
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
+   const prompt = `
+Generate an interview report.
 
-    const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-`
+CRITICAL: Return EXACTLY this JSON structure with objects in ALL arrays (NOT strings):
+
+{
+  "title": "Job Title",
+  "matchScore": 75,
+  "technicalQuestions": [
+    { "question": "Question text?", "intention": "Why ask this?", "answer": "How to answer" }
+  ],
+  "behavioralQuestions": [
+    { "question": "Question text?", "intention": "Why ask this?", "answer": "How to answer" }
+  ],
+  "skillGaps": [
+    { "skill": "Missing skill", "severity": "low" }
+  ],
+  "preparationPlan": [
+    { "day": 1, "focus": "Focus area", "tasks": ["Task 1", "Task 2"] }
+  ]
+}
+
+IMPORTANT RULES:
+- EVERY array item MUST be an OBJECT with all required fields
+- NEVER use plain strings like "Question text?" in arrays
+- matchScore must be a number (0-100)
+- severity must be "low", "medium", or "high"
+- day must be a number starting from 1
+
+Resume: ${resume}
+Self Description: ${selfDescription}
+Job Description: ${jobDescription}
+`;
 
     const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.5-flash-lite",  // Keep this
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
+            // Remove responseSchema - it's not working with lite
         }
     })
 
-    return JSON.parse(response.text)
+    const data = JSON.parse(response.text);
 
+    // TRANSFORM STRINGS TO OBJECTS (fixes the Mongoose error)
+    const transformQuestion = (q) => {
+        if (typeof q === 'string') {
+            return { question: q, intention: 'Assess technical knowledge', answer: 'Discuss relevant concepts and provide examples' }
+        }
+        return { 
+            question: q.question || 'Unknown question', 
+            intention: q.intention || 'Assess knowledge', 
+            answer: q.answer || 'Provide detailed explanation' 
+        }
+    }
 
+    const transformSkillGap = (gap) => {
+        if (typeof gap === 'string') {
+            return { skill: gap, severity: 'medium' }
+        }
+        return { 
+            skill: gap.skill || 'Unknown skill', 
+            severity: gap.severity || 'medium' 
+        }
+    }
+
+    const transformPlanItem = (item) => {
+        if (typeof item === 'string') {
+            return { day: 1, focus: item, tasks: ['Study this topic thoroughly'] }
+        }
+        return { 
+            day: item.day || 1, 
+            focus: item.focus || 'Unknown focus', 
+            tasks: item.tasks || ['Complete study'] 
+        }
+    }
+
+    // Apply transformations to fix schema mismatch
+    const validatedData = {
+        title: data.title || "Interview Report",
+        matchScore: typeof data.matchScore === 'number' ? data.matchScore : 50,
+        technicalQuestions: data.technicalQuestions?.map(transformQuestion) || [],
+        behavioralQuestions: data.behavioralQuestions?.map(transformQuestion) || [],
+        skillGaps: data.skillGaps?.map(transformSkillGap) || [],
+        preparationPlan: data.preparationPlan?.map(transformPlanItem) || [],
+    }
+
+    return validatedData
 }
-
 
 
 async function generatePdfFromHtml(htmlContent) {
