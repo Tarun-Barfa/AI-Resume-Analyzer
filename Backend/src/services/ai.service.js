@@ -129,22 +129,40 @@ Job Description: ${jobDescription}
 
 
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch()
+     let browser;
+  
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-setuid-sandbox',
+        '--no-zygote'
+      ],
+      timeout: 60000
+    });
+    
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-
+    await page.setContent(htmlContent, { waitUntil: "networkidle" });
+    
     const pdfBuffer = await page.pdf({
-        format: "A4", margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
-        }
-    })
-
-    await browser.close()
-
-    return pdfBuffer
+      format: "A4",
+      margin: {
+        top: "20mm",
+        bottom: "20mm",
+        left: "15mm",
+        right: "15mm"
+      }
+    });
+    
+    return pdfBuffer;
+  } finally {
+    if (browser) {
+      await browser.close(); // Always close
+    }
+  }
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
