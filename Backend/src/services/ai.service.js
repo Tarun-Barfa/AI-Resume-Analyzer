@@ -2,10 +2,9 @@ const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
 
-//const puppeteer = require("puppeteer")
+const puppeteer = require("puppeteer")
 
-const puppeteer = require("puppeteer-core")
-const chromium = require("@sparticuz/chromium")
+
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -132,39 +131,26 @@ Job Description: ${jobDescription}
 }
 
 
+
 async function generatePdfFromHtml(htmlContent) {
-     let browser;
-  
- try {
-    // ✅ CORRECT: Use await properly
-    browser = await puppeteer.launch({
-      executablePath: await chromium.executablePath,
-      args: chromium.args,
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-      timeout: 60000
-    });
-    
+    const browser = await puppeteer.launch()
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle" });
-    
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+
     const pdfBuffer = await page.pdf({
-      format: "A4",
-      margin: {
-        top: "20mm",
-        bottom: "20mm",
-        left: "15mm",
-        right: "15mm"
-      }
-    });
-    
-    return pdfBuffer;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
-  }
+        format: "A4", margin: {
+            top: "20mm",
+            bottom: "20mm",
+            left: "15mm",
+            right: "15mm"
+        }
+    })
+
+    await browser.close()
+
+    return pdfBuffer
 }
+
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
