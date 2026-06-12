@@ -171,7 +171,7 @@ Job Description: ${jobDescription}
 
 
 async function generatePdfFromHtml(htmlContent) {
-   console.log("Executable Path:", puppeteer.executablePath());
+   
     const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(),
