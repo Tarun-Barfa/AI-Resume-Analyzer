@@ -138,7 +138,7 @@ async function generatePdfFromHtml(htmlContent) {
  try {
     // ✅ CORRECT: Use await properly
     browser = await puppeteer.launch({
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath,
       args: chromium.args,
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
