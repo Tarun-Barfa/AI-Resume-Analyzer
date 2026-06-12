@@ -135,16 +135,13 @@ Job Description: ${jobDescription}
 async function generatePdfFromHtml(htmlContent) {
      let browser;
   
-  try {
+ try {
+    // ✅ CORRECT: Use await properly
     browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--disable-setuid-sandbox',
-        '--no-zygote'
-      ],
+      executablePath: await chromium.executablePath(),
+      args: chromium.args,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
       timeout: 60000
     });
     
@@ -164,7 +161,7 @@ async function generatePdfFromHtml(htmlContent) {
     return pdfBuffer;
   } finally {
     if (browser) {
-      await browser.close(); // Always close
+      await browser.close();
     }
   }
 }
