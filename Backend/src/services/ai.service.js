@@ -3,7 +3,7 @@ const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
 
 const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium").default;
 
 
 
@@ -174,7 +174,7 @@ async function generatePdfFromHtml(htmlContent) {
 
     console.log(typeof chromium.executablePath);
     console.log(chromium);
-    
+
     const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(),
